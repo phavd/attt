@@ -25,8 +25,16 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
 public class RSAUtils {
+
 //-------------------------------------------------------------------------------------------------------------------------
   private static final String RSA_CIPHER_INSTANCE  = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"; // "RSA" = "RSA/ECB/PKCS1Padding" 
+  private static final OAEPParameterSpec OAEP_SHA256_MGF1_SPEC = new OAEPParameterSpec( // OAEPParameterSpec immutable and thread-safe
+      "SHA-256",                    // Hash function
+      "MGF1",                       // Mask generation function
+      MGF1ParameterSpec.SHA256,     // MGF1 with SHA-256
+      PSource.PSpecified.DEFAULT    // Default label (empty)
+  );
+
   private static final String SIGNATURE_INSTANCE_PATTERN  = "%swithRSA"; // "SHA256withRSA", "SHA384withRSA", "SHA512withRSA"
 
 //-------------------------------------------------------------------------------------------------------------------------
@@ -86,47 +94,31 @@ public class RSAUtils {
   }
 
 //-------------------------------------------------------------------------------------------------------------------------
-  // Mã hóa RSA
+  // Mã hóa RSA: Hàm cũ
   public static String encryptRSA_OLD(String data, PublicKey publicKey) throws Exception {
     Cipher cipher = Cipher.getInstance(RSA_CIPHER_INSTANCE);
     cipher.init(Cipher.ENCRYPT_MODE, publicKey);
     return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes(StandardCharsets.UTF_8)));
   }
-
+  // Mã hóa RSA: Hàm mới
   public static String encryptRSA(String data, PublicKey publicKey) throws Exception {
     Cipher cipher = Cipher.getInstance(RSA_CIPHER_INSTANCE);
-
-    OAEPParameterSpec oaepParams = new OAEPParameterSpec(
-        "SHA-256",                    // Hash function
-        "MGF1",                       // Mask generation function
-        MGF1ParameterSpec.SHA256,     // MGF1 with SHA-256
-        PSource.PSpecified.DEFAULT    // Default label (empty)
-    );
-
-    cipher.init(Cipher.ENCRYPT_MODE, publicKey, oaepParams);
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey, OAEP_SHA256_MGF1_SPEC);
     byte[] encryptedBytes = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
     return Base64.getEncoder().encodeToString(encryptedBytes);
   }
 
 //-------------------------------------------------------------------------------------------------------------------------
-  // Giải mã RSA
+  // Giải mã RSA: Hàm cũ
   public static String decryptRSA_OLD(String encryptedData, PrivateKey privateKey) throws Exception {
     Cipher cipher = Cipher.getInstance(RSA_CIPHER_INSTANCE);
     cipher.init(Cipher.DECRYPT_MODE, privateKey);
     return new String(cipher.doFinal(Base64.getDecoder().decode(encryptedData)), StandardCharsets.UTF_8);
   }
-
+  // Giải mã RSA: Hàm mới
   public static String decryptRSA(String encryptedData, PrivateKey privateKey) throws Exception {
     Cipher cipher = Cipher.getInstance(RSA_CIPHER_INSTANCE);
-
-    OAEPParameterSpec oaepParams = new OAEPParameterSpec(
-        "SHA-256",                    // Hash function
-        "MGF1",                       // Mask generation function
-        MGF1ParameterSpec.SHA256,     // MGF1 with SHA-256
-        PSource.PSpecified.DEFAULT    // Default label (empty)
-    );
-
-    cipher.init(Cipher.DECRYPT_MODE, privateKey, oaepParams);
+    cipher.init(Cipher.DECRYPT_MODE, privateKey, OAEP_SHA256_MGF1_SPEC);
     byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
     return new String(decryptedBytes, StandardCharsets.UTF_8);
   }
