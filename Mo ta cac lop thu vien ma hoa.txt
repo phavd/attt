@@ -1,0 +1,7 @@
+1. RSAUtils.java: Dùng cho bước xác thực
+    a. Mã hóa/Giải mã Password(khi login) và AES Key
+    b. Tạo/Kiểm tra tính hợp lệ chữ ký số
+2. AESUtils.java: Dùng cho bước lấy tài nguyên sau khi đã xác thực thành công
+    Mã hóa/Giải mã dữ liệu lấy tài nguyên
+3. AESCBCUtils.java: Lớp bao lại lớp AESUtils.java theo AES/CBC
+4. AESGCMUtils.java: Lớp bao lại lớp AESUtils.java theo AES/GCM
